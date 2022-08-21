@@ -29,17 +29,17 @@ large:
 
 ### Create Workflow
 
-Create a workflow (eg: `.github/workflows/labeler.yml` see [Creating a Workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) to utilize the labeler action with content:
+Create a workflow (eg: `.github/workflows/changed-lines-count-labeler.yml` see [Creating a Workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) to utilize the labeler action with content:
 
 ```yml
-name: "Pull Request Labeler"
+name: "Changed Lines Count Labeler"
 on: [pull_request]
 
 jobs:
   changed-lines-count-labeler:
     runs-on: ubuntu-latest
     name: An action for automatically labelling pull requests based on the changed lines count
-  steps:
+    steps:
     - name: Set a label
       uses: vkirilichev/changed-lines-count-labeler@v0.1
       with:
