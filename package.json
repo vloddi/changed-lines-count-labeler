@@ -1,0 +1,41 @@
+{
+  "name": "labeler",
+  "version": "3.1.0",
+  "description": "Labels pull requests by files altered",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc && ncc build lib/main.js",
+    "format": "prettier --write \"**/*.ts\"",
+    "format-check": "prettier --check \"**/*.ts\"",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/actions/labeler.git"
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "label",
+    "labeler"
+  ],
+  "author": "GitHub",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0",
+    "js-yaml": "^4.1.0",
+    "minimatch": "^3.0.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/node": "^16.11.7",
+    "@types/minimatch": "^3.0.5",
+    "@types/js-yaml": "^4.0.5",
+    "@vercel/ncc": "^0.33.3",
+    "jest": "^27.5.1",
+    "prettier": "^2.6.2",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.6.3"
+  }
+}

@@ -1,0 +1,12 @@
+name: 'Changed Lines Count Labeler'
+description: 'Set a label based on the number of lines changed'
+inputs:
+  repo-token:
+    description: 'The GITHUB_TOKEN secret'
+  configuration-path:
+    description: 'The path for the label configurations'
+    default: '.github/changed-lines-count-labeler.yml'
+    required: false
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
