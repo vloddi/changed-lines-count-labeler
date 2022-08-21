@@ -1,5 +1,11 @@
 # Changed Lines Count Labeler
 
+<p align="left">
+  <a href="https://github.com/vkirilichev/changed-lines-count-labeler/actions?query=workflow%3A%22Build+%26+Test%22++">
+    <img alt="build and test status" src="https://github.com/vkirilichev/changed-lines-count-labeler/actions/workflows/build_test.yml/badge.svg">
+  </a>
+</p>
+
 Automatically label new pull requests based on the changed lines count.
 
 ## Usage
