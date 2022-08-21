@@ -41,7 +41,7 @@ jobs:
     name: An action for automatically labelling pull requests based on the changed lines count
     steps:
     - name: Set a label
-      uses: vkirilichev/changed-lines-count-labeler@v0.1
+      uses: vkirilichev/changed-lines-count-labeler@v0.2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         configuration-path: .github/changed-lines-count-labeler.yml
