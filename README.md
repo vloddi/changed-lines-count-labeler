@@ -33,6 +33,23 @@ large:
   min: 100
 ```
 
+#### Excluding files
+
+Use the optional `exclude` key to ignore certain files when counting changed lines. The value is a list of [minimatch](https://github.com/isaacs/minimatch) globs. `exclude` is reserved and cannot be used as a label name.
+
+```yml
+small:
+  max: 9
+
+large:
+  min: 10
+
+# Don't count test files and markdown files
+exclude:
+  - "**/src/test/**"
+  - "**/*.md"
+```
+
 ### Create Workflow
 
 Create a workflow (eg: `.github/workflows/changed-lines-count-labeler.yml` see [Creating a Workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) to utilize the labeler action with content:
