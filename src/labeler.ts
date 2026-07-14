@@ -1,10 +1,16 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import * as yaml from "js-yaml";
+import { Minimatch } from "minimatch";
 
 interface LabelConfig {
   min?: number;
   max?: number;
+}
+
+interface Config {
+  labels: Map<string, LabelConfig>;
+  exclude: string[];
 }
 
 type ClientType = ReturnType<typeof github.getOctokit>;
@@ -28,13 +34,17 @@ export async function run() {
       pull_number: prNumber,
     });
 
+    const config: Config = await getConfig(client, configPath);
+
     core.debug(`fetching changed files for pr #${prNumber}`);
-    const changedLinesCnt: number = pullRequest.additions + pullRequest.deletions;
-    const config: Map<string, LabelConfig> = await getConfig(client, configPath); // Label to its config
+    const changedLinesCnt: number =
+      config.exclude.length > 0
+        ? await getChangedLinesCountExcluding(client, prNumber, config.exclude)
+        : pullRequest.additions + pullRequest.deletions;
 
     const labels: string[] = [];
     const labelsToRemove: string[] = [];
-    for (const [label, labelConfig] of config.entries()) {
+    for (const [label, labelConfig] of config.labels.entries()) {
       core.debug(`processing ${label}`);
       if (checkBoundaries(changedLinesCnt, labelConfig)) {
         labels.push(label);
@@ -65,13 +75,31 @@ function getPrNumber(): number | undefined {
   return pullRequest.number;
 }
 
+async function getChangedLinesCountExcluding(
+  client: ClientType,
+  prNumber: number,
+  exclude: string[]
+): Promise<number> {
+  const matchers = exclude.map((pattern) => new Minimatch(pattern, { dot: true }));
+  const files = await client.paginate(client.rest.pulls.listFiles, {
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    pull_number: prNumber,
+    per_page: 100,
+  });
+
+  return files
+    .filter((file) => !matchers.some((matcher) => matcher.match(file.filename)))
+    .reduce((sum, file) => sum + file.additions + file.deletions, 0);
+}
+
 async function getConfig(
   client: ClientType,
   configurationPath: string
-): Promise<Map<string, LabelConfig>> {
+): Promise<Config> {
   const configurationContent: string = await fetchContent(client, configurationPath);
   const configObject: any = yaml.load(configurationContent);
-  return getLabelConfigMapFromObject(configObject);
+  return getConfigFromObject(configObject);
 }
 
 async function fetchContent(
@@ -88,19 +116,23 @@ async function fetchContent(
   return Buffer.from(response.data.content, response.data.encoding).toString();
 }
 
-function getLabelConfigMapFromObject(
-  configObject: any
-): Map<string, LabelConfig> {
-  const labelGlobs: Map<string, LabelConfig> = new Map();
-  for (const label in configObject) {
-    if (configObject[label] instanceof Object) {
-      labelGlobs.set(label, configObject[label]);
+function getConfigFromObject(configObject: any): Config {
+  const labels: Map<string, LabelConfig> = new Map();
+  let exclude: string[] = [];
+  for (const key in configObject) {
+    if (key === "exclude") {
+      if (!Array.isArray(configObject[key]) || configObject[key].some((p: any) => typeof p !== "string")) {
+        throw Error(`unexpected type for "exclude" (should be an array of glob patterns)`);
+      }
+      exclude = configObject[key];
+    } else if (configObject[key] instanceof Object) {
+      labels.set(key, configObject[key]);
     } else {
-      throw Error(`unexpected type for label ${label} (should be string or array of globs)`);
+      throw Error(`unexpected type for label ${key} (should be an object with min and/or max)`);
     }
   }
 
-  return labelGlobs;
+  return { labels, exclude };
 }
 
 export function checkBoundaries(cnt: number, labelConfig: LabelConfig): boolean {

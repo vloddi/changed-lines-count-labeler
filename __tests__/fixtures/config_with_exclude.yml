@@ -1,0 +1,9 @@
+petit:
+    min: 0
+    max: 5
+grande:
+    min: 100
+    max: 500
+exclude:
+    - "**/src/test/**"
+    - "**/*.md"
